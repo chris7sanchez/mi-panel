@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Panel">
+<meta name="theme-color" content="#080810">
+<title>Mi Panel · Christian</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;
+  --s1:#0f0f1a;
+  --s2:#14141f;
+  --s3:#1a1a28;
+  --b1:rgba(255,255,255,0.06);
+  --b2:rgba(255,255,255,0.12);
+  --b3:rgba(255,255,255,0.20);
+  --txt:#f0f0f5;
+  --txt2:#a0a0b8;
+  --txt3:#606078;
+  --gold:#c8a84b;
+  --gold2:#8b6a1e;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:13px;overscroll-behavior:none}
+
+/* APP SHELL */
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-t)}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--b1);
+  background:var(--bg);flex-shrink:0;gap:12px;flex-wrap:wrap;
+}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#000;flex-shrink:0;
+}
+.topbar-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--txt)}
+.topbar-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.sync-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:20px;
+  background:var(--s2);border:1px solid var(--b1);
+  font-size:10px;color:var(--txt3);white-space:nowrap;
+}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:var(--txt3);flex-shrink:0}
+.sync-dot.ok{background:#4ade80}
+.sync-dot.spin{background:var(--gold);animation:blink 1s infinite}
+.sync-dot.err{background:#f87171}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* NAV */
+nav{
+  display:flex;padding:0 16px;border-bottom:1px solid var(--b1);
+  background:var(--bg);overflow-x:auto;scrollbar-width:none;flex-shrink:0;
+}
+nav::-webkit-scrollbar{display:none}
+.ntab{
+  padding:13px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);
+  background:none;border:none;border-bottom:2px solid transparent;
+  cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:color .15s,border-color .15s;
+}
+.ntab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.ntab:hover:not(.active){color:var(--txt2)}
+
+/* MAIN */
+main{flex:1;overflow-y:auto;padding:24px 20px;padding-bottom:calc(24px + var(--safe-b))}
+.page{display:none}.page.active{display:block}
+@media(min-width:680px){main{max-width:800px;margin:0 auto;padding:28px 24px}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:24px}
+.ph-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--txt);line-height:1.1}
+.ph-sub{font-size:12px;color:var(--txt3);margin-top:4px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:24px}
+.metric{
+  background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+  padding:14px 12px;text-align:center;
+}
+.metric-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--txt);line-height:1}
+.metric-lbl{font-size:9px;color:var(--txt3);margin-top:4px;text-transform:uppercase;letter-spacing:.1em}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.view-grp{display:flex;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:3px;gap:3px}
+.vbtn{
+  padding:5px 12px;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.06em;border:none;background:none;color:var(--txt3);
+  cursor:pointer;border-radius:7px;transition:all .15s;
+}
+.vbtn.active{background:var(--s3);color:var(--txt)}
+.chip{
+  padding:6px 13px;font-size:10px;font-family:'Syne',sans-serif;font-weight:600;
+  letter-spacing:.06em;background:var(--s1);border:1px solid var(--b1);
+  border-radius:20px;color:var(--txt3);cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.chip.active{background:var(--gold);border-color:var(--gold);color:#000}
+.chip:hover:not(.active){border-color:var(--b2);color:var(--txt2)}
+.search{
+  flex:1;min-width:120px;background:var(--s1);border:1px solid var(--b1);
+  border-radius:10px;padding:7px 13px;color:var(--txt);
+  font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .15s;
+}
+.search:focus{border-color:var(--b2)}
+.search::placeholder{color:var(--txt3)}
+
+/* SECTION LABEL */
+.slabel{
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--txt3);
+  margin:20px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.slabel span{font-weight:400;color:var(--txt3)}
+
+/* PROJECT CARD */
+.card{
+  background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:15px 16px;margin-bottom:8px;cursor:pointer;
+  position:relative;overflow:hidden;transition:border-color .15s,transform .1s;
+}
+.card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:14px 0 0 14px}
+.card-area-f::before{background:#3b82f6}
+.card-area-t::before{background:#10b981}
+.card-area-c::before{background:#f59e0b}
+.card-area-fi::before{background:#8b5cf6}
+.card-area-p::before{background:#ec4899}
+.card-area-i::before{background:#6b7280}
+.card-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.badge{
+  font-size:9px;font-family:'Syne',sans-serif;font-weight:600;letter-spacing:.05em;
+  padding:2px 8px;border-radius:20px;border:1px solid;
+}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt);margin-bottom:3px;line-height:1.35}
+.card-area-label{font-size:10px;color:var(--txt3);margin-bottom:6px}
+.card-desc{font-size:12px;color:var(--txt2);line-height:1.55}
+.card-notes{
+  font-size:11px;color:var(--txt3);margin-top:8px;padding-top:8px;
+  border-top:1px solid var(--b1);line-height:1.5;
+}
+.card-ruta{
+  display:flex;align-items:center;gap:6px;margin-top:8px;
+  padding:7px 10px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;
+}
+.ruta-txt{font-size:10px;font-family:'Inter',sans-serif;color:var(--txt3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ruta-btn{
+  font-size:10px;color:var(--txt3);background:none;
+  border:1px solid var(--b2);border-radius:6px;padding:2px 8px;cursor:pointer;flex-shrink:0;
+}
+.ruta-btn:hover{color:var(--txt)}
+.add-btn{
+  width:100%;padding:13px;background:none;border:1px dashed var(--b2);
+  border-radius:14px;color:var(--txt3);font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:600;cursor:pointer;margin-top:4px;transition:all .15s;
+}
+.add-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* PROGRESS */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.prog-label{font-size:11px;color:var(--txt2);min-width:100px}
+.prog-bar{flex:1;height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.prog-pct{font-size:11px;min-width:32px;text-align:right;font-family:'Syne',sans-serif;font-weight:700}
+.prog-nota{font-size:11px;color:var(--txt3);min-width:28px;text-align:right}
+
+/* COURSE TABLE */
+.ctable{width:100%;border-collapse:collapse;margin-top:12px}
+.ctable th{
+  font-size:9px;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 8px;text-align:left;border-bottom:1px solid var(--b1);
+}
+.ctable td{padding:8px 8px;border-bottom:1px solid var(--b1);font-size:11px;vertical-align:top}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:var(--s2)}
+.nota{font-family:'Syne',sans-serif;font-weight:700}
+.fb{
+  font-size:10px;color:var(--txt3);margin-top:4px;line-height:1.5;
+  border-left:2px solid var(--b2);padding-left:8px;
+  max-height:48px;overflow:hidden;cursor:pointer;transition:max-height .3s;
+}
+.fb.open{max-height:200px}
+
+/* MODAL */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;
+  display:flex;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(6px);
+}
+.overlay.hidden{display:none}
+.modal{
+  background:var(--s1);border:1px solid var(--b2);
+  border-radius:20px 20px 0 0;
+  padding:20px 20px;padding-bottom:calc(24px + var(--safe-b));
+  width:100%;max-width:600px;max-height:92vh;overflow-y:auto;
+  animation:up .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(min-width:640px){
+  .overlay{align-items:center;padding:20px}
+  .modal{border-radius:20px;max-height:88vh}
+  @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+}
+.modal-handle{width:36px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:20px;color:var(--txt)}
+.field{margin-bottom:13px}
+.field label{font-size:10px;color:var(--txt3);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px;font-family:'Syne',sans-serif;font-weight:600}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--s2);border:1px solid var(--b2);
+  border-radius:10px;padding:10px 12px;color:var(--txt);
+  font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:68px}
+.field input::placeholder,.field textarea::placeholder{color:var(--txt3)}
+.field select option{background:var(--s2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ruta-wrap{display:flex;gap:8px}
+.ruta-wrap input{flex:1}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--b1)}
+.btn{
+  padding:9px 18px;border-radius:10px;font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:1px solid;transition:all .15s;
+}
+.btn-sec{background:none;border-color:var(--b2);color:var(--txt2)}
+.btn-sec:hover{color:var(--txt);border-color:var(--b3)}
+.btn-del{background:none;border-color:rgba(248,113,113,.3);color:#f87171}
+.btn-pri{background:var(--gold);border-color:var(--gold);color:#000}
+.btn-pri:hover{background:#d4b050}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:calc(20px + var(--safe-b));left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--s2);border:1px solid var(--b2);border-radius:10px;
+  padding:10px 18px;font-size:12px;z-index:200;transition:transform .25s;white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* CONFIG */
+.cfg-block{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:14px}
+.cfg-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:14px}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--txt3)}
+.empty div:first-child{font-size:32px;margin-bottom:10px;opacity:.4}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">CP</div>
+    <div>
+      <div class="topbar-name">Mi Panel</div>
+      <div class="topbar-sub">Christian Pérez Sánchez</div>
+    </div>
+  </div>
+  <div class="sync-pill">
+    <div class="sync-dot" id="sdot"></div>
+    <span id="stxt">Iniciando...</span>
+  </div>
+</div>
+
+<nav>
+  <button class="ntab active" onclick="goPage('vida',this)">Vida</button>
+  <button class="ntab" onclick="goPage('curso',this)">35mm</button>
+  <button class="ntab" onclick="goPage('pend',this)">Pendientes</button>
+  <button class="ntab" onclick="goPage('cfg',this)">Config</button>
+</nav>
+
+<main>
+
+<!-- VIDA -->
+<div class="page active" id="page-vida">
+  <div class="ph">
+    <div class="ph-title">Proyectos</div>
+    <div class="ph-sub">Todos los ámbitos de tu vida</div>
+  </div>
+  <div class="metrics" id="mv"></div>
+  <div class="toolbar">
+    <div class="view-grp">
+      <button class="vbtn active" onclick="setV('area',this)">Área</button>
+      <button class="vbtn" onclick="setV('urg',this)">Urgencia</button>
+      <button class="vbtn" onclick="setV('list',this)">Lista</button>
+    </div>
+    <input class="search" id="srch" placeholder="Buscar..." oninput="rv()">
+  </div>
+  <div class="toolbar" id="chips" style="margin-top:-6px"></div>
+  <div id="board"></div>
+</div>
+
+<!-- CURSO -->
+<div class="page" id="page-curso">
+  <div class="ph">
+    <div class="ph-title">Dirección Audiovisual</div>
+    <div class="ph-sub">Treintaycinco mm · Media global: 7,63</div>
+  </div>
+  <div class="metrics" id="mc"></div>
+  <div class="toolbar">
+    <button class="chip active" onclick="fc('todo',this)">Todo</button>
+    <button class="chip" onclick="fc('pend',this)">Pendientes</button>
+    <button class="chip" onclick="fc('tarea',this)">Tareas</button>
+    <button class="chip" onclick="fc('test',this)">Tests</button>
+  </div>
+  <div id="bcurso"></div>
+</div>
+
+<!-- PENDIENTES -->
+<div class="page" id="page-pend">
+  <div class="ph">
+    <div class="ph-title">Pendientes</div>
+    <div class="ph-sub">Todo lo que queda por hacer</div>
+  </div>
+  <div id="bpend"></div>
+</div>
+
+<!-- CONFIG -->
+<div class="page" id="page-cfg">
+  <div class="ph">
+    <div class="ph-title">Config</div>
+    <div class="ph-sub">Sincronización e instalación</div>
+  </div>
+
+  <div class="cfg-block">
+    <div class="cfg-title">Supabase · Sincronización</div>
+    <div class="field"><label>Project URL</label><input type="text" id="cfgu" placeholder="https://xxxx.supabase.co"></div>
+    <div class="field"><label>Anon Key</label><input type="text" id="cfgk" placeholder="eyJhbGci..."></div>
+    <button class="btn btn-pri" onclick="saveCfg()" style="width:100%;margin-top:4px">Guardar y conectar</button>
+  </div>
+
+  <div class="cfg-block">
+    <div class="cfg-title">Instalar como app nativa</div>
+    <p style="font-size:12px;color:var(--txt2);line-height:1.8;margin-bottom:12px">
+      <strong style="color:var(--txt)">Mac Safari:</strong> Menú Archivo → Compartir → Añadir al Dock<br>
+      <strong style="color:var(--txt)">iPhone Safari:</strong> Botón compartir → Añadir a inicio<br>
+      <strong style="color:var(--txt)">Chrome:</strong> Menú ⋮ → Instalar aplicación
+    </p>
+    <div id="ibtn"></div>
+    <p style="font-size:11px;color:var(--txt3);margin-top:10px;line-height:1.6">Nota: necesitas publicar en GitHub Pages para que la instalación funcione. Sigue el README.</p>
+  </div>
+
+  <div class="cfg-block">
+    <div class="cfg-title">Datos</div>
+    <button class="btn btn-sec" onclick="exportData()" style="width:100%;margin-bottom:8px">Exportar backup JSON</button>
+    <button class="btn btn-del" onclick="if(confirm('¿Borrar todo?'))clearAll()" style="width:100%">Borrar datos locales</button>
+  </div>
+</div>
+
+</main>
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="overlay hidden" id="ov" onclick="if(event.target===this)cm()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mtitle">Nuevo proyecto</div>
+    <div class="field"><label>Título</label><input type="text" id="ft" placeholder="Nombre del proyecto"></div>
+    <div class="field">
+      <label>Área</label>
+      <select id="fa">
+        <option value="f">Formación / 35mm</option>
+        <option value="t">Trabajo / Profesional</option>
+        <option value="c">Proyectos creativos</option>
+        <option value="fi">Finanzas / Gestiones</option>
+        <option value="p">Vida personal / Hábitos</option>
+        <option value="i">Ideas pendientes</option>
+      </select>
+    </div>
+    <div class="field"><label>Descripción</label><textarea id="fd" placeholder="¿En qué consiste?"></textarea></div>
+    <div class="field"><label>Notas</label><textarea id="fn" placeholder="Apuntes, pendientes..." style="min-height:50px"></textarea></div>
+    <div class="field">
+      <label>Carpeta / Ruta / Enlace</label>
+      <div class="ruta-wrap">
+        <input type="text" id="fr" placeholder="C:\Proyectos\... o https://...">
+        <button class="btn btn-sec" onclick="pasteR()" style="flex-shrink:0;padding:9px 12px">Pegar</button>
+      </div>
+      <div style="font-size:10px;color:var(--txt3);margin-top:4px">Ruta local, disco externo o URL</div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Estado</label>
+        <select id="fe">
+          <option value="pendiente">Pendiente</option>
+          <option value="progreso">En progreso</option>
+          <option value="revisar">Revisar</option>
+          <option value="hecho">Completado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Prioridad</label>
+        <select id="fp">
+          <option value="baja">Baja</option>
+          <option value="media" selected>Media</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Fecha límite</label><input type="date" id="ff"></div>
+    <div class="modal-footer">
+      <button class="btn btn-sec" onclick="cm()">Cancelar</button>
+      <button class="btn btn-del" id="bdel" style="display:none" onclick="delP()">Eliminar</button>
+      <button class="btn btn-pri" onclick="saveP()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// CREDENCIALES SUPABASE
+// ═══════════════════════════════════════════
+const DEF_URL = 'https://nnsfviwgqplldhtzmaru.supabase.co';
+const DEF_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uc2Z2aXdncXBsbGRodHptYXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDM5NTksImV4cCI6MjA5MjcxOTk1OX0.7wvYeYX3wc9qpJlYDSzlHLZYb1y8sYWvquQKTkgOC4w';
+
+let SBU = localStorage.getItem('sb_u') || DEF_URL;
+let SBK = localStorage.getItem('sb_k') || DEF_KEY;
+let sbOk = false;
+
+// ═══════════════════════════════════════════
+// ÁREAS
+// ═══════════════════════════════════════════
+const AREAS = {
+  f:  {label:'Formación / 35mm',   col:'#3b82f6', cls:'card-area-f'},
+  t:  {label:'Trabajo / Profesional', col:'#10b981', cls:'card-area-t'},
+  c:  {label:'Proyectos creativos', col:'#f59e0b', cls:'card-area-c'},
+  fi: {label:'Finanzas / Gestiones',col:'#8b5cf6', cls:'card-area-fi'},
+  p:  {label:'Vida personal / Hábitos',col:'#ec4899',cls:'card-area-p'},
+  i:  {label:'Ideas pendientes',    col:'#6b7280', cls:'card-area-i'},
+};
+const PC = {baja:'#6b7280',media:'#fbbf24',alta:'#f97316',urgente:'#f87171'};
+const EC = {
+  pendiente:{t:'#9ca3af',b:'rgba(156,163,175,.18)'},
+  progreso: {t:'#60a5fa',b:'rgba(96,165,250,.18)'},
+  revisar:  {t:'#fbbf24',b:'rgba(251,191,36,.18)'},
+  hecho:    {t:'#4ade80',b:'rgba(74,222,128,.18)'},
+};
+
+// ═══════════════════════════════════════════
+// DATOS CURSO 35MM (fijos)
+// ═══════════════════════════════════════════
+const CURSO = [
+  {id:'m1',nom:'Módulo 1',pct:100,ex:'9,25',col:'#4ade80',items:[
+    {tp:'test',nom:'Test 1.1',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.2.1',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.2.2',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.3',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.4',nota:'8,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.5',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 1.6',nota:'9,00',st:'ok',fb:''},
+    {tp:'examen',nom:'Examen Módulo 1',nota:'9,25',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 1.1 Historia de la cinematografía',nota:'100',st:'ok',fb:'Muy bien planteados y adaptados. Enhorabuena. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.2.1 Historia del Montaje',nota:'100',st:'ok',fb:'¡Que maravilla! El uso narrativo del jumpCut, movimientos de cámara, iluminación. Todos los elementos muy bien usados. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.2.2 Historia del montaje II',nota:'80',st:'ok',fb:'El corte en acción no está del todo claro. El resto está muy bien. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.3 Lenguaje cinematográfico',nota:'100',st:'ok',fb:'El análisis está muy bien. El punto de vista puesto en Marilyn, por ello los contrapicados. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.4 La industria audiovisual',nota:'100',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 1.5.1 Géneros y productos audiovisuales',nota:'100',st:'ok',fb:'Todos los ejemplos bien. Habría estado bien añadir fotografías. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.5.2',nota:'100',st:'ok',fb:'Guión con correcto formato, conflicto claro, escena bien articulada. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.6.1',nota:'100',st:'ok',fb:'El trabajo que has presentado es increíble. Muy muy bueno. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 1.6.2',nota:'100',st:'ok',fb:'El análisis está muy bien y justificas tu decisión. — Juan F. Andrés'},
+  ]},
+  {id:'m2',nom:'Módulo 2',pct:92,ex:'9,25',col:'#86efac',items:[
+    {tp:'test',nom:'Test 2.1',nota:'8,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 2.2',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 2.3',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 2.4',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 2.5.1',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 2.5.2',nota:'10,00',st:'ok',fb:''},
+    {tp:'examen',nom:'Examen Módulo 2',nota:'9,25',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 2.1',nota:'100',st:'ok',fb:'Has desglosado correctamente las secuencias. — Miguel Puertas'},
+    {tp:'tarea',nom:'Tarea 2.2',nota:'70',st:'ok',fb:'Estructura correcta. Identificar volúmenes del espacio y pasillos para mejorar. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 2.3',nota:'—',st:'pendiente',fb:''},
+    {tp:'tarea',nom:'Tarea 2.4 La Banda Sonora',nota:'80',st:'ok',fb:'La sustitución de Dirty Dancing no encaja en ritmo. En general buen trabajo. — Joaquín P.'},
+    {tp:'tarea',nom:'Tarea 2.5',nota:'95',st:'ok',fb:'Muy bien. Faltó pista de audio en EDL. Vídeo a 18 Mbps en lugar de 20. — Jose Roa'},
+  ]},
+  {id:'m3',nom:'Módulo 3',pct:93,ex:'9,75',col:'#a3e635',items:[
+    {tp:'test',nom:'Test 3.1',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 3.2',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 3.3',nota:'8,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 3.4',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 3.5.1',nota:'8,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 3.5.2',nota:'8,00',st:'ok',fb:''},
+    {tp:'examen',nom:'Examen Módulo 3',nota:'9,75',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 3.1',nota:'100',st:'ok',fb:'Muy bien. Lo descrito es 1 escena (toda en la bolera, tiempo lineal). — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 3.2',nota:'80',st:'ok',fb:'Estructura correcta pero general. El desglose debe preparar el rodaje, no describir lo visto. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 3.3',nota:'—',st:'pendiente',fb:''},
+    {tp:'tarea',nom:'Tarea 3.4',nota:'95',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 3.5.1',nota:'100',st:'ok',fb:'Genial, muy buen resultado. Muy bien rodado y actuado. — Guillem Beltrà'},
+    {tp:'tarea',nom:'Tarea 3.5.2',nota:'100',st:'ok',fb:'Sonidos bien seleccionados, suman realismo. Vas perfeccionando tu oído audiovisual. — Guillem Beltrà'},
+    {tp:'tarea',nom:'Tarea 3.5.3',nota:'100',st:'ok',fb:'Muy bien, buen trabajo.'},
+    {tp:'tarea',nom:'Tarea 3.5.4',nota:'100',st:'ok',fb:'Perfecto, adelante.'},
+  ]},
+  {id:'m4',nom:'Módulo 4',pct:78,ex:'9,25',col:'#fbbf24',items:[
+    {tp:'test',nom:'Test 4.1',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 4.2',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 4.3',nota:'8,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 4.4',nota:'9,00',st:'ok',fb:''},
+    {tp:'examen',nom:'Examen Módulo 4',nota:'9,25',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 4.1',nota:'100',st:'ok',fb:'Muy bien elaborada. Revisar también roles en plató además de equipamiento. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 4.2',nota:'100',st:'ok',fb:'Muy muy bien. Tanto análisis como presentación. Se agradece el esfuerzo en diseño. — Juan F. Andrés'},
+    {tp:'tarea',nom:'Tarea 4.3',nota:'—',st:'pendiente',fb:''},
+    {tp:'tarea',nom:'Tarea 4.4 Campaña Transmedia',nota:'—',st:'progreso',fb:'PDF completado. Pendiente entrega oficial y adjuntar spot.'},
+  ]},
+  {id:'m5',nom:'Módulo 5',pct:0,ex:'—',col:'#f87171',items:[
+    {tp:'test',nom:'Test 5.1',nota:'—',st:'pendiente',fb:''},
+    {tp:'test',nom:'Test 5.2',nota:'—',st:'pendiente',fb:''},
+    {tp:'test',nom:'Test 5.3',nota:'—',st:'pendiente',fb:''},
+    {tp:'examen',nom:'Examen Módulo 5',nota:'—',st:'pendiente',fb:''},
+    {tp:'tarea',nom:'Tarea 5.1',nota:'—',st:'pendiente',fb:''},
+    {tp:'tarea',nom:'Tarea 5.2',nota:'—',st:'pendiente',fb:''},
+  ]},
+  {id:'fin',nom:'Proyecto Final + Prácticas',pct:0,ex:'—',col:'#f87171',items:[
+    {tp:'proyecto',nom:'Proyecto Final',nota:'—',st:'pendiente',fb:'Tutora: María González. Completar módulo 5 primero.'},
+    {tp:'gestión',nom:'Solicitud de prácticas en empresa',nota:'—',st:'pendiente',fb:'Tramitar solicitud para la bolsa de prácticas.'},
+  ]},
+];
+
+// ═══════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════
+let P = [], nid = 100, vw = 'area', cf = 'todo', eid = null, fa = '';
+
+function defaultP() {
+  return [
+    {id:101,t:'Módulo 5 – Dirección Audiovisual',a:'f',d:'Tests 5.1/5.2/5.3 + Examen + Tareas 5.1 y 5.2. Al 0%. Tutor: Javier García.',n:'',e:'pendiente',p:'urgente',f:'2026-06-28',r:''},
+    {id:102,t:'Tarea 4.4 Campaña Transmedia',a:'f',d:'PDF completado. Pendiente entrega oficial y adjuntar spot via QR.',n:'',e:'progreso',p:'urgente',f:'2026-05-25',r:''},
+    {id:103,t:'Tarea 4.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
+    {id:104,t:'Tarea 3.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
+    {id:105,t:'Tarea 2.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
+    {id:106,t:'Proyecto Final 35mm',a:'f',d:'Al 0%. Tutora: María González. Requiere terminar módulo 5 primero.',n:'',e:'pendiente',p:'urgente',f:'',r:''},
+    {id:107,t:'Solicitud de prácticas',a:'f',d:'Tramitar solicitud para la bolsa de prácticas de 35mm.',n:'',e:'pendiente',p:'media',f:'',r:''},
+    {id:108,t:'Spot Bat-Zhoes',a:'c',d:'Anuncio rodado y editado. Subir a plataforma y vincular al PDF.',n:'',e:'revisar',p:'alta',f:'2026-05-20',r:''},
+    {id:109,t:'Idea de cortometraje',a:'i',d:'Concepto narrativo pendiente de desarrollar.',n:'',e:'pendiente',p:'baja',f:'',r:''},
+  ];
+}
+
+// ═══════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════
+async function sbReq(path, opts={}) {
+  try {
+    const r = await fetch(`${SBU}/rest/v1${path}`, {
+      headers:{'apikey':SBK,'Authorization':`Bearer ${SBK}`,'Content-Type':'application/json','Prefer':opts.prefer||''},
+      ...opts
+    });
+    if (!r.ok) return null;
+    const tx = await r.text();
+    return tx ? JSON.parse(tx) : true;
+  } catch { return null; }
+}
+
+async function initSB() {
+  setSS('spin','Conectando...');
+  try {
+    const d = await sbReq(`/projects?select=*&order=created_at.asc`);
+    if (!d) throw 0;
+    sbOk = true;
+    P = d.map(r => r.data);
+    if (!P.length) { P = defaultP(); nid = 200; await pushAll(); }
+    else nid = Math.max(...P.map(x=>x.id||0))+1;
+    setSS('ok',`Sincronizado · ${P.length} proyectos`);
+    saveL(); ra();
+    setInterval(pullCloud, 30000);
+  } catch {
+    setSS('err','Sin conexión · Datos locales');
+    loadL();
+  }
+}
+
+async function pullCloud() {
+  if (!sbOk) return;
+  const d = await sbReq('/projects?select=*&order=created_at.asc');
+  if (!d) return;
+  P = d.map(r => r.data);
+  saveL(); ra();
+  setSS('ok',`Sync ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`);
+}
+
+async function pushOne(p) {
+  if (!sbOk) return;
+  setSS('spin','Guardando...');
+  await sbReq(`/projects?id=eq.${p.id}`,{method:'DELETE',prefer:'return=minimal'});
+  await sbReq('/projects',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:p.id,data:p})});
+  setSS('ok','Guardado ✓');
+}
+
+async function pushAll() {
+  if (!sbOk) return;
+  for (const p of P) await sbReq('/projects',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:p.id,data:p})});
+}
+
+async function delCloud(id) {
+  if (!sbOk) return;
+  await sbReq(`/projects?id=eq.${id}`,{method:'DELETE',prefer:'return=minimal'});
+}
+
+function setSS(st, tx) {
+  document.getElementById('sdot').className = 'sync-dot ' + (st==='ok'?'ok':st==='spin'?'spin':'err');
+  document.getElementById('stxt').textContent = tx;
+}
+
+// ═══════════════════════════════════════════
+// LOCAL
+// ═══════════════════════════════════════════
+function saveL() { localStorage.setItem('pv1', JSON.stringify({P,nid})); }
+function loadL() {
+  const r = localStorage.getItem('pv1');
+  if (r) { const d=JSON.parse(r); P=d.P||[]; nid=d.nid||100; }
+  else { P=defaultP(); nid=200; }
+  ra();
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+const dl = f => f ? Math.ceil((new Date(f)-new Date())/86400000) : null;
+const us = p => ({urgente:4,alta:3,media:2,baja:1}[p.p]||1)*1000-(dl(p.f)??999);
+const isUrl = s => /^https?:\/\//i.test(s?.trim());
+
+function filt() {
+  const s = (document.getElementById('srch')?.value||'').toLowerCase();
+  return P.filter(p => {
+    if (fa && p.a !== fa) return false;
+    if (s && !p.t.toLowerCase().includes(s) && !(p.d||'').toLowerCase().includes(s)) return false;
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function ra() { rmv(); rv(); rcurso(); rpend(); }
+
+function rmv() {
+  const tot=P.length, ok=P.filter(p=>p.e==='hecho').length;
+  const ug=P.filter(p=>p.p==='urgente'&&p.e!=='hecho').length;
+  const sw=P.filter(p=>{const d=dl(p.f);return d!==null&&d>=0&&d<=7&&p.e!=='hecho'}).length;
+  document.getElementById('mv').innerHTML=`
+    <div class="metric"><div class="metric-val">${tot}</div><div class="metric-lbl">Total</div></div>
+    <div class="metric"><div class="metric-val">${ok}</div><div class="metric-lbl">Hechos</div></div>
+    <div class="metric"><div class="metric-val">${tot?Math.round(ok/tot*100):0}%</div><div class="metric-lbl">Avance</div></div>
+    <div class="metric"><div class="metric-val" style="color:${ug>0?'#f87171':'var(--txt)'}">${ug}</div><div class="metric-lbl">Urgentes</div></div>
+    <div class="metric"><div class="metric-val" style="color:${sw>0?'#fbbf24':'var(--txt)'}">${sw}</div><div class="metric-lbl">Esta semana</div></div>`;
+}
+
+function renderChips() {
+  const areas = ['', ...new Set(P.map(p=>p.a))];
+  document.getElementById('chips').innerHTML = areas.map(a => {
+    const lbl = a==='' ? 'Todo' : (AREAS[a]?.label||a);
+    return `<button class="chip ${fa===a?'active':''}" onclick="setFA('${a}')">${lbl}</button>`;
+  }).join('');
+}
+
+function setFA(a) { fa=a; rv(); }
+
+function cardH(p) {
+  const ar = AREAS[p.a]||{label:p.a,col:'#888',cls:''};
+  const ec = EC[p.e]||EC.pendiente;
+  const d = dl(p.f);
+  let dH = '';
+  if (d!==null && p.e!=='hecho') {
+    const c = d<0?'#f87171':d<=3?'#f97316':d<=7?'#fbbf24':'var(--txt3)';
+    dH = `<span style="font-size:10px;color:${c};margin-left:auto">${d<0?Math.abs(d)+'d retraso':d===0?'hoy':d+'d'}</span>`;
+  }
+  let rH = '';
+  if (p.r?.trim()) {
+    const r=p.r.trim(), sh=r.length>44?r.slice(0,22)+'…'+r.slice(-20):r;
+    const ab = isUrl(r)?`<button class="ruta-btn" onclick="event.stopPropagation();window.open('${r}','_blank')">Abrir</button>`:'';
+    rH = `<div class="card-ruta">
+      <span class="ruta-txt" title="${r}">${sh}</span>
+      ${ab}
+      <button class="ruta-btn" id="cp${p.id}" onclick="event.stopPropagation();cpR('${r.replace(/'/g,"\\'")}','${p.id}')">Copiar</button>
+    </div>`;
+  }
+  return `<div class="card ${ar.cls}" onclick="om(${p.id})">
+    <div class="card-badges">
+      <span class="badge" style="color:${ec.t};border-color:${ec.t};background:${ec.b}">${p.e}</span>
+      <span class="badge" style="color:${PC[p.p]};border-color:${PC[p.p]};background:${PC[p.p]}22">${p.p}</span>
+      ${dH}
+    </div>
+    <div class="card-title">${p.t}</div>
+    <div class="card-area-label" style="color:${ar.col}">${ar.label}</div>
+    ${p.d?`<div class="card-desc">${p.d.slice(0,120)}${p.d.length>120?'…':''}</div>`:''}
+    ${p.n?`<div class="card-notes">${p.n.slice(0,80)}${p.n.length>80?'…':''}</div>`:''}
+    ${rH}
+  </div>`;
+}
+
+function rv() {
+  renderChips();
+  const list = filt(), board = document.getElementById('board');
+  let h = '';
+  if (vw==='area') {
+    const byA={};
+    list.forEach(p=>{(byA[p.a]=byA[p.a]||[]).push(p)});
+    Object.entries(byA).forEach(([a,ps])=>{
+      const ar=AREAS[a]||{label:a,col:'#888'};
+      h+=`<div class="slabel" style="color:${ar.col}">${ar.label}<span>${ps.length}</span></div>`;
+      h+=ps.map(cardH).join('');
+    });
+  } else if (vw==='urg') {
+    const s=[...list].sort((a,b)=>us(b)-us(a));
+    const top=p=>p.p==='urgente'||(dl(p.f)!==null&&dl(p.f)<=7&&p.e!=='hecho');
+    const bk=[
+      {l:'Urgente / esta semana',i:s.filter(top)},
+      {l:'Alta prioridad',i:s.filter(p=>p.p==='alta'&&!top(p))},
+      {l:'Media / baja',i:s.filter(p=>['media','baja'].includes(p.p)&&!top(p))},
+    ];
+    bk.filter(b=>b.i.length).forEach(b=>{
+      h+=`<div class="slabel">${b.l}<span>${b.i.length}</span></div>`;
+      h+=b.i.map(cardH).join('');
+    });
+  } else {
+    h=[...list].sort((a,b)=>us(b)-us(a)).map(cardH).join('');
+  }
+  if (!h) h=`<div class="empty"><div>○</div><div>Sin proyectos</div></div>`;
+  h+=`<button class="add-btn" onclick="om(null)">+ Añadir proyecto</button>`;
+  board.innerHTML=h;
+}
+
+function rcurso() {
+  document.getElementById('mc').innerHTML=`
+    <div class="metric"><div class="metric-val">7,63</div><div class="metric-lbl">Media global</div></div>
+    <div class="metric"><div class="metric-val" style="color:#4ade80">9,3</div><div class="metric-lbl">M1–M4</div></div>
+    <div class="metric"><div class="metric-val" style="color:#f87171">8</div><div class="metric-lbl">Pendientes</div></div>
+    <div class="metric"><div class="metric-val" style="color:#fbbf24">0%</div><div class="metric-lbl">Módulo 5</div></div>`;
+
+  let h='<div style="margin-bottom:24px">';
+  CURSO.forEach(m=>{
+    h+=`<div class="prog-row">
+      <div class="prog-label">${m.nom}</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${m.pct}%;background:${m.col}"></div></div>
+      <div class="prog-pct" style="color:${m.col}">${m.pct}%</div>
+      <div class="prog-nota">${m.ex}</div>
+    </div>`;
+  });
+  h+='</div>';
+
+  CURSO.forEach(m=>{
+    const items = cf==='todo'?m.items
+      :cf==='pend'?m.items.filter(i=>i.st==='pendiente'||i.st==='progreso')
+      :cf==='tarea'?m.items.filter(i=>i.tp==='tarea')
+      :m.items.filter(i=>i.tp==='test'||i.tp==='examen');
+    if (!items.length) return;
+    const pid=`pb${m.id}`;
+    h+=`<div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--b1)">
+        <div class="prog-bar" style="width:50px"><div class="prog-fill" style="width:${m.pct}%;background:${m.col}"></div></div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex:1">${m.nom}</div>
+        <div style="font-size:11px;font-weight:700;color:${m.col};font-family:'Syne',sans-serif">${m.pct}%</div>
+      </div>
+      <table class="ctable"><thead><tr><th>Actividad</th><th>Tipo</th><th>Nota</th><th>Estado</th></tr></thead><tbody>`;
+    items.forEach(it=>{
+      const nn=parseFloat(it.nota);
+      const nc=isNaN(nn)?'var(--txt3)':nn>=90?'#4ade80':nn>=70?'#fbbf24':'#f87171';
+      const ec=it.st==='ok'?{t:'#4ade80',b:'rgba(74,222,128,.15)',lbl:'entregado'}
+        :it.st==='progreso'?{t:'#60a5fa',b:'rgba(96,165,250,.15)',lbl:'en progreso'}
+        :{t:'#f87171',b:'rgba(248,113,113,.15)',lbl:'pendiente'};
+      const fid=`f${m.id}${it.nom.replace(/\W/g,'_')}`;
+      h+=`<tr>
+        <td>${it.nom}${it.fb?`<div class="fb" id="${fid}" onclick="this.classList.toggle('open')">${it.fb}</div>`:''}</td>
+        <td style="color:var(--txt3);white-space:nowrap">${it.tp}</td>
+        <td><span class="nota" style="color:${nc}">${it.nota}</span></td>
+        <td><span class="badge" style="color:${ec.t};border-color:${ec.t};background:${ec.b};font-size:9px">${ec.lbl}</span></td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  });
+  document.getElementById('bcurso').innerHTML=h;
+}
+
+function rpend() {
+  const pv=P.filter(p=>p.e!=='hecho').sort((a,b)=>us(b)-us(a));
+  const pc=[];
+  CURSO.forEach(m=>m.items.filter(i=>i.st==='pendiente'||i.st==='progreso').forEach(i=>pc.push({nom:`${m.nom} · ${i.nom}`,st:i.st,tp:i.tp})));
+
+  let h='';
+  if (pv.length) {
+    h+=`<div class="slabel" style="color:var(--txt3)">Proyectos de vida<span>${pv.length}</span></div>`;
+    h+=pv.map(cardH).join('');
+  }
+  if (pc.length) {
+    h+=`<div class="slabel" style="color:#3b82f6;margin-top:20px">35mm · Pendientes del curso<span>${pc.length}</span></div>`;
+    pc.forEach(it=>{
+      const isP=it.st==='pendiente';
+      h+=`<div class="card" style="cursor:default">
+        <div class="card-badges">
+          <span class="badge" style="color:${isP?'#f87171':'#60a5fa'};border-color:${isP?'#f87171':'#60a5fa'};background:${isP?'rgba(248,113,113,.18)':'rgba(96,165,250,.18)'}">${it.st}</span>
+          <span class="badge" style="color:var(--txt3);border-color:var(--b2)">${it.tp}</span>
+        </div>
+        <div class="card-title">${it.nom}</div>
+      </div>`;
+    });
+  }
+  if (!h) h=`<div class="empty"><div>✓</div><div>Todo completado</div></div>`;
+  document.getElementById('bpend').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function om(id) {
+  eid=id;
+  document.getElementById('bdel').style.display=id?'block':'none';
+  document.getElementById('mtitle').textContent=id?'Editar proyecto':'Nuevo proyecto';
+  const p=id?P.find(x=>x.id===id):{t:'',a:'f',d:'',n:'',r:'',e:'pendiente',p:'media',f:''};
+  document.getElementById('ft').value=p.t;
+  document.getElementById('fa').value=p.a;
+  document.getElementById('fd').value=p.d||'';
+  document.getElementById('fn').value=p.n||'';
+  document.getElementById('fr').value=p.r||'';
+  document.getElementById('fe').value=p.e;
+  document.getElementById('fp').value=p.p;
+  document.getElementById('ff').value=p.f||'';
+  document.getElementById('ov').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('ft').focus(),80);
+}
+function cm(){document.getElementById('ov').classList.add('hidden');eid=null}
+
+async function saveP() {
+  const p={
+    id:eid||nid++,
+    t:document.getElementById('ft').value||'Sin título',
+    a:document.getElementById('fa').value,
+    d:document.getElementById('fd').value,
+    n:document.getElementById('fn').value,
+    r:document.getElementById('fr').value.trim(),
+    e:document.getElementById('fe').value,
+    p:document.getElementById('fp').value,
+    f:document.getElementById('ff').value,
+    u:new Date().toISOString(),
+  };
+  P=eid?P.map(x=>x.id===eid?p:x):[...P,p];
+  saveL(); cm(); ra(); toast('Guardado');
+  await pushOne(p);
+}
+
+async function delP() {
+  if (!eid) return;
+  const id=eid;
+  P=P.filter(x=>x.id!==id);
+  saveL(); cm(); ra(); toast('Eliminado');
+  await delCloud(id);
+}
+
+async function pasteR() {
+  try{const t=await navigator.clipboard.readText();document.getElementById('fr').value=t}
+  catch{document.getElementById('fr').focus()}
+}
+
+function cpR(r,id) {
+  navigator.clipboard.writeText(r).then(()=>{
+    const b=document.getElementById('cp'+id);
+    if(!b)return; const o=b.textContent;
+    b.textContent='Copiado'; setTimeout(()=>{if(b)b.textContent=o},1600);
+  }).catch(()=>prompt('Copia esta ruta:',r));
+}
+
+// ═══════════════════════════════════════════
+// NAV & VIEW
+// ═══════════════════════════════════════════
+function goPage(id,btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='cfg') {
+    document.getElementById('cfgu').value=SBU;
+    document.getElementById('cfgk').value=SBK;
+  }
+}
+
+function setV(v,btn) {
+  vw=v;
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); rv();
+}
+
+function fc(f,btn) {
+  cf=f;
+  document.querySelectorAll('#page-curso .chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); rcurso();
+}
+
+// ═══════════════════════════════════════════
+// CONFIG & UTILS
+// ═══════════════════════════════════════════
+function saveCfg() {
+  SBU=document.getElementById('cfgu').value.trim();
+  SBK=document.getElementById('cfgk').value.trim();
+  if (!SBU||!SBK){toast('Completa URL y Key');return}
+  localStorage.setItem('sb_u',SBU); localStorage.setItem('sb_k',SBK);
+  sbOk=false; initSB();
+}
+
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function exportData() {
+  const b=new Blob([JSON.stringify({P,date:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download='mi-panel-backup.json'; a.click();
+}
+
+function clearAll() {
+  P=[]; saveL();
+  if(sbOk) sbReq('/projects',{method:'DELETE',prefer:'return=minimal'});
+  ra(); toast('Borrado');
+}
+
+// ═══════════════════════════════════════════
+// PWA
+// ═══════════════════════════════════════════
+let dp=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); dp=e;
+  document.getElementById('ibtn').innerHTML=`<button class="btn btn-pri" onclick="installP()" style="width:100%">Instalar como app</button>`;
+});
+function installP(){if(dp){dp.prompt();dp.userChoice.then(()=>dp=null)}}
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+initSB();
+</script>
+</body>
+</html>
