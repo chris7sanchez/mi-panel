@@ -1,0 +1,44 @@
+name: Health check diario
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # cada día a las 07:00 UTC (09:00 España verano)
+  workflow_dispatch:        # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar que la web responde
+        run: |
+          echo "→ Comprobando mi-panel-six.vercel.app"
+          code=$(curl -s -o /dev/null -w "%{http_code}" https://mi-panel-six.vercel.app/)
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::La web no responde 200 (devolvió $code)"
+            exit 1
+          fi
+
+      - name: Comprobar que Supabase devuelve datos
+        run: |
+          echo "→ Comprobando Supabase (projects)"
+          SBU="https://nnsfviwgqplldhtzmaru.supabase.co"
+          SBK="${{ secrets.SUPABASE_ANON_KEY }}"
+          if [ -z "$SBK" ]; then
+            echo "::warning::Falta el secret SUPABASE_ANON_KEY; salto el test de datos"
+            exit 0
+          fi
+          resp=$(curl -s -w "\n%{http_code}" \
+            -H "apikey: $SBK" \
+            -H "Authorization: Bearer $SBK" \
+            "$SBU/rest/v1/projects?select=id&limit=1")
+          code=$(echo "$resp" | tail -1)
+          body=$(echo "$resp" | head -n -1)
+          echo "HTTP $code · respuesta: $body"
+          if [ "$code" != "200" ]; then
+            echo "::error::Supabase no respondió 200 (devolvió $code)"
+            exit 1
+          fi
+
+      - name: Resultado
+        run: echo "✓ Web y Supabase operativos"
