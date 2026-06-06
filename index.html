@@ -523,7 +523,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 3.5.3',nota:'100',st:'ok',fb:'Muy bien, buen trabajo.'},
     {tp:'tarea',nom:'Tarea 3.5.4',nota:'100',st:'ok',fb:'Perfecto, adelante.'},
   ]},
-  {id:'m4',nom:'Módulo 4',pct:78,ex:'9,25',col:'#fbbf24',items:[
+  {id:'m4',nom:'Módulo 4',pct:100,ex:'9,25',col:'#4ade80',items:[
     {tp:'test',nom:'Test 4.1',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 4.2',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 4.3',nota:'8,00',st:'ok',fb:''},
@@ -531,19 +531,19 @@ const CURSO = [
     {tp:'examen',nom:'Examen Módulo 4',nota:'9,25',st:'ok',fb:''},
     {tp:'tarea',nom:'Tarea 4.1',nota:'100',st:'ok',fb:'Muy bien elaborada. Revisar también roles en plató además de equipamiento. — Juan F. Andrés'},
     {tp:'tarea',nom:'Tarea 4.2',nota:'100',st:'ok',fb:'Muy muy bien. Tanto análisis como presentación. Se agradece el esfuerzo en diseño. — Juan F. Andrés'},
-    {tp:'tarea',nom:'Tarea 4.3',nota:'—',st:'pendiente',fb:''},
-    {tp:'tarea',nom:'Tarea 4.4 Campaña Transmedia',nota:'—',st:'progreso',fb:'PDF completado. Pendiente entrega oficial y adjuntar spot.'},
+    {tp:'tarea',nom:'Tarea 4.3',nota:'100',st:'ok',fb:'Proyecto muy bueno. Faltó una logline/storyline inicial. — Juan'},
+    {tp:'tarea',nom:'Tarea 4.4 Campaña Transmedia',nota:'90',st:'ok',fb:'Muy buen trabajo, coherencia en el universo. Mejorar: el peso narrativo recae más en el ARG que en el producto. — Juan'},
   ]},
-  {id:'m5',nom:'Módulo 5',pct:0,ex:'—',col:'#f87171',items:[
-    {tp:'test',nom:'Test 5.1',nota:'—',st:'pendiente',fb:''},
-    {tp:'test',nom:'Test 5.2',nota:'—',st:'pendiente',fb:''},
-    {tp:'test',nom:'Test 5.3',nota:'—',st:'pendiente',fb:''},
-    {tp:'examen',nom:'Examen Módulo 5',nota:'—',st:'pendiente',fb:''},
-    {tp:'tarea',nom:'Tarea 5.1',nota:'—',st:'pendiente',fb:''},
-    {tp:'tarea',nom:'Tarea 5.2',nota:'—',st:'pendiente',fb:''},
+  {id:'m5',nom:'Módulo 5',pct:100,ex:'9,25',col:'#4ade80',items:[
+    {tp:'test',nom:'Test 5.1',nota:'10,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 5.2',nota:'9,00',st:'ok',fb:''},
+    {tp:'test',nom:'Test 5.3',nota:'10,00',st:'ok',fb:''},
+    {tp:'examen',nom:'Examen Módulo 5',nota:'9,25',st:'ok',fb:''},
+    {tp:'tarea',nom:'Tarea 5.1',nota:'100',st:'ok',fb:'¡Enhorabuena por el trabajo realizado!'},
+    {tp:'tarea',nom:'Tarea 5.2',nota:'100',st:'ok',fb:'Cada detalle cuidado a la perfección. ¡Muy buena tarea!'},
   ]},
-  {id:'fin',nom:'Proyecto Final + Prácticas',pct:0,ex:'—',col:'#f87171',items:[
-    {tp:'proyecto',nom:'Proyecto Final',nota:'—',st:'pendiente',fb:'Tutora: María González. Completar módulo 5 primero.'},
+  {id:'fin',nom:'Proyecto Final + Prácticas',pct:50,ex:'80',col:'#fbbf24',items:[
+    {tp:'proyecto',nom:'Proyecto Final',nota:'80',st:'ok',fb:'Memoria excelente y dossier muy completo. Mejorar: capturas del proceso de etalonaje, planos más pausados en la intro, contraste de color algo alto. Enhorabuena. — Tutor'},
     {tp:'gestión',nom:'Solicitud de prácticas en empresa',nota:'—',st:'pendiente',fb:'Tramitar solicitud para la bolsa de prácticas.'},
   ]},
 ];
@@ -555,12 +555,12 @@ let P = [], nid = 100, vw = 'area', cf = 'todo', eid = null, fa = '';
 
 function defaultP() {
   return [
-    {id:101,t:'Módulo 5 – Dirección Audiovisual',a:'f',d:'Tests 5.1/5.2/5.3 + Examen + Tareas 5.1 y 5.2. Al 0%. Tutor: Javier García.',n:'',e:'pendiente',p:'urgente',f:'2026-06-28',r:''},
-    {id:102,t:'Tarea 4.4 Campaña Transmedia',a:'f',d:'PDF completado. Pendiente entrega oficial y adjuntar spot via QR.',n:'',e:'progreso',p:'urgente',f:'2026-05-25',r:''},
-    {id:103,t:'Tarea 4.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
-    {id:104,t:'Tarea 3.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
-    {id:105,t:'Tarea 2.3',a:'f',d:'Pendiente de entrega. Sin nota ni feedback.',n:'',e:'pendiente',p:'alta',f:'',r:''},
-    {id:106,t:'Proyecto Final 35mm',a:'f',d:'Al 0%. Tutora: María González. Requiere terminar módulo 5 primero.',n:'',e:'pendiente',p:'urgente',f:'',r:''},
+    {id:101,t:'Módulo 5 – Dirección Audiovisual',a:'f',d:'Curso FINALIZADO. Tests + Examen + Tareas 5.1=100, 5.2=100. Media módulo 9,56. Tutor: Javier García.',n:'',e:'hecho',p:'baja',f:'',r:''},
+    {id:102,t:'Tarea 4.4 Campaña Transmedia',a:'f',d:'Calificada: 90/100. Coherencia en el universo; mejorar peso del producto sobre el ARG.',n:'',e:'hecho',p:'baja',f:'',r:''},
+    {id:103,t:'Tarea 4.3',a:'f',d:'Calificada: 100/100. Faltó logline/storyline inicial.',n:'',e:'hecho',p:'baja',f:'',r:''},
+    {id:104,t:'Tarea 3.3',a:'f',d:'Calificada: 100/100.',n:'',e:'hecho',p:'baja',f:'',r:''},
+    {id:105,t:'Tarea 2.3',a:'f',d:'Calificada: 100/100. "Excelente".',n:'',e:'hecho',p:'baja',f:'',r:''},
+    {id:106,t:'Proyecto Final 35mm',a:'f',d:'Calificado: 80/100. Curso completo, nota final 9,60. Tutora: María González.',n:'',e:'hecho',p:'baja',f:'',r:''},
     {id:107,t:'Solicitud de prácticas',a:'f',d:'Tramitar solicitud para la bolsa de prácticas de 35mm.',n:'',e:'pendiente',p:'media',f:'',r:''},
     {id:108,t:'Spot Bat-Zhoes',a:'c',d:'Anuncio rodado y editado. Subir a plataforma y vincular al PDF.',n:'',e:'revisar',p:'alta',f:'2026-05-20',r:''},
     {id:109,t:'Idea de cortometraje',a:'i',d:'Concepto narrativo pendiente de desarrollar.',n:'',e:'pendiente',p:'baja',f:'',r:''},
@@ -754,9 +754,9 @@ function rv() {
 function rcurso() {
   document.getElementById('mc').innerHTML=`
     <div class="metric"><div class="metric-val">7,63</div><div class="metric-lbl">Media global</div></div>
-    <div class="metric"><div class="metric-val" style="color:#4ade80">9,3</div><div class="metric-lbl">M1–M4</div></div>
-    <div class="metric"><div class="metric-val" style="color:#f87171">8</div><div class="metric-lbl">Pendientes</div></div>
-    <div class="metric"><div class="metric-val" style="color:#fbbf24">0%</div><div class="metric-lbl">Módulo 5</div></div>`;
+    <div class="metric"><div class="metric-val" style="color:#4ade80">9,60</div><div class="metric-lbl">Nota final</div></div>
+    <div class="metric"><div class="metric-val" style="color:#fbbf24">1</div><div class="metric-lbl">Pendientes</div></div>
+    <div class="metric"><div class="metric-val" style="color:#4ade80">100%</div><div class="metric-lbl">Curso</div></div>`;
 
   let h='<div style="margin-bottom:24px">';
   CURSO.forEach(m=>{
