@@ -60,6 +60,14 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .sync-dot.ok{background:#4ade80}
 .sync-dot.spin{background:var(--gold);animation:blink 1s infinite}
 .sync-dot.err{background:#f87171}
+.btn-upd{display:flex;align-items:center;gap:6px;background:var(--card,#16161f);border:1px solid rgba(255,255,255,.08);color:var(--txt,#e8e8ef);font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;cursor:pointer;transition:.15s;font-family:inherit}
+.btn-upd:hover{border-color:var(--gold,#D4A017);color:var(--gold,#D4A017)}
+.btn-upd:active{transform:scale(.96)}
+.btn-upd svg{width:14px;height:14px}
+.btn-upd.spin svg{animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.upd-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold,#D4A017);color:#0a0a0f;font-size:13px;font-weight:700;padding:11px 18px;border-radius:11px;z-index:9999;transition:.3s;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.upd-toast.show{transform:translateX(-50%) translateY(0)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* NAV */
@@ -273,9 +281,15 @@ main{flex:1;overflow-y:auto;padding:24px 20px;padding-bottom:calc(24px + var(--s
       <div class="topbar-sub">Christian Pérez Sánchez</div>
     </div>
   </div>
-  <div class="sync-pill">
-    <div class="sync-dot" id="sdot"></div>
-    <span id="stxt">Iniciando...</span>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="sync-pill">
+      <div class="sync-dot" id="sdot"></div>
+      <span id="stxt">Iniciando...</span>
+    </div>
+    <button class="btn-upd" id="bupd" onclick="manualUpdate()" title="Actualizar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      Actualizar
+    </button>
   </div>
 </div>
 
@@ -939,7 +953,46 @@ window.addEventListener('beforeinstallprompt',e=>{
   document.getElementById('ibtn').innerHTML=`<button class="btn btn-pri" onclick="installP()" style="width:100%">Instalar como app</button>`;
 });
 function installP(){if(dp){dp.prompt();dp.userChoice.then(()=>dp=null)}}
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+// ── Service Worker + detección de versión nueva ──
+let swReg = null, swWaiting = null;
+if('serviceWorker' in navigator){
+  window.addEventListener('load',async()=>{
+    try{
+      swReg = await navigator.serviceWorker.register('/sw.js');
+      swReg.addEventListener('updatefound',()=>{
+        const nw = swReg.installing;
+        nw && nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed' && navigator.serviceWorker.controller){ swWaiting = nw; toast('Nueva versión disponible · pulsa Actualizar'); }
+        });
+      });
+    }catch{}
+  });
+  let reloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(reloading)return; reloading=true; location.reload(); });
+}
+
+function toast(msg){
+  let t=document.getElementById('updToast');
+  if(!t){t=document.createElement('div');t.id='updToast';t.className='upd-toast';document.body.appendChild(t);}
+  t.textContent=msg; requestAnimationFrame(()=>t.classList.add('show'));
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+async function manualUpdate(){
+  const b=document.getElementById('bupd'); b.classList.add('spin');
+  try{
+    // 1) refrescar datos desde Supabase
+    if(typeof sbOk!=='undefined' && sbOk){ await pullCloud(); }
+    else { await initSB(); }
+    // 2) comprobar si hay nueva versión del código desplegado
+    if(swReg){
+      await swReg.update();
+      if(swWaiting){ swWaiting.postMessage('skipWaiting'); return; } // recargará solo
+    }
+    toast('Actualizado ✓');
+  }catch{ toast('Error al actualizar'); }
+  finally{ b.classList.remove('spin'); }
+}
 
 // ═══════════════════════════════════════════
 // INIT
