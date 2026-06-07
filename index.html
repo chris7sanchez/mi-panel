@@ -15,18 +15,18 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080810;
-  --s1:#0f0f1a;
-  --s2:#14141f;
-  --s3:#1a1a28;
-  --b1:rgba(255,255,255,0.06);
-  --b2:rgba(255,255,255,0.12);
-  --b3:rgba(255,255,255,0.20);
-  --txt:#f0f0f5;
-  --txt2:#a0a0b8;
-  --txt3:#606078;
-  --gold:#c8a84b;
-  --gold2:#8b6a1e;
+  --bg:#F4F5FA;
+  --s1:#ffffff;
+  --s2:#ffffff;
+  --s3:#F1EFE8;
+  --b1:rgba(0,0,0,0.06);
+  --b2:rgba(0,0,0,0.12);
+  --b3:rgba(0,0,0,0.18);
+  --txt:#2C2C2A;
+  --txt2:#5F5E5A;
+  --txt3:#888780;
+  --gold:#D4A017;
+  --gold2:#a37c0f;
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
 }
@@ -44,9 +44,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .topbar-left{display:flex;align-items:center;gap:12px}
 .logo{
   width:36px;height:36px;border-radius:10px;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  background:var(--gold);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#000;flex-shrink:0;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#412402;flex-shrink:0;
 }
 .topbar-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--txt)}
 .topbar-sub{font-size:11px;color:var(--txt3);margin-top:1px}
@@ -268,6 +268,29 @@ main{flex:1;overflow-y:auto;padding:24px 20px;padding-bottom:calc(24px + var(--s
 /* EMPTY */
 .empty{text-align:center;padding:48px 20px;color:var(--txt3)}
 .empty div:first-child{font-size:32px;margin-bottom:10px;opacity:.4}
+/* ===== REDISEÑO PASTEL KANBAN ===== */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.kcol{min-width:0}
+.kcol-head{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.kcol-head span{background:var(--s3);border-radius:10px;padding:1px 8px;font-weight:600}
+.kempty{border:1px dashed var(--b2);border-radius:12px;padding:18px 10px;text-align:center;font-size:10px;color:var(--txt3)}
+.pcard{border-radius:14px;padding:12px 13px;margin-bottom:10px;cursor:pointer;transition:transform .1s,box-shadow .15s;position:relative}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.pcard .card-title{font-size:13px;margin-bottom:2px}
+.pcard .card-desc{font-size:11px;line-height:1.45;margin-top:4px;opacity:.9}
+.pcard-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px}
+.pbadge{font-size:9px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:7px}
+.pnota{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;line-height:1}
+.pbar{height:5px;border-radius:4px;margin-top:9px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px}
+.area-head{display:flex;align-items:center;gap:9px;margin:22px 0 12px}
+.area-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.area-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt)}
+.area-tag{font-size:10px;padding:2px 8px;border-radius:7px;font-weight:600}
+.metric{box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card{box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.topbar{box-shadow:0 1px 4px rgba(0,0,0,.04)}
+@media(max-width:600px){.kanban{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -462,6 +485,16 @@ const AREAS = {
   i:  {label:'Ideas pendientes',    col:'#6b7280', cls:'card-area-i'},
 };
 const PC = {baja:'#6b7280',media:'#fbbf24',alta:'#f97316',urgente:'#f87171'};
+// Paleta pastel por área: fondo, texto oscuro, barra, color base
+const PAL = {
+  f:  {bg:'#E6F1FB', tx:'#0C447C', bar:'#378ADD', soft:'#B5D4F4', dot:'#185FA5'},
+  t:  {bg:'#E1F5EE', tx:'#04342C', bar:'#1D9E75', soft:'#9FE1CB', dot:'#0F6E56'},
+  c:  {bg:'#FAEEDA', tx:'#412402', bar:'#BA7517', soft:'#FAC775', dot:'#854F0B'},
+  fi: {bg:'#EEEDFE', tx:'#26215C', bar:'#7F77DD', soft:'#CECBF6', dot:'#534AB7'},
+  p:  {bg:'#FBEAF0', tx:'#4B1528', bar:'#D4537E', soft:'#F4C0D1', dot:'#993556'},
+  i:  {bg:'#F1EFE8', tx:'#2C2C2A', bar:'#888780', soft:'#D3D1C7', dot:'#5F5E5A'},
+};
+const palOf = a => PAL[a] || PAL.i;
 const EC = {
   pendiente:{t:'#9ca3af',b:'rgba(156,163,175,.18)'},
   progreso: {t:'#60a5fa',b:'rgba(96,165,250,.18)'},
@@ -473,7 +506,7 @@ const EC = {
 // DATOS CURSO 35MM (fijos)
 // ═══════════════════════════════════════════
 const CURSO = [
-  {id:'m1',nom:'Módulo 1',pct:100,ex:'9,25',col:'#4ade80',items:[
+  {id:'m1',nom:'Módulo 1',pct:100,ex:'9,25',col:'#639922',items:[
     {tp:'test',nom:'Test 1.1',nota:'9,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 1.2.1',nota:'9,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 1.2.2',nota:'10,00',st:'ok',fb:''},
@@ -492,7 +525,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 1.6.1',nota:'100',st:'ok',fb:'El trabajo que has presentado es increíble. Muy muy bueno. — Juan F. Andrés'},
     {tp:'tarea',nom:'Tarea 1.6.2',nota:'100',st:'ok',fb:'El análisis está muy bien y justificas tu decisión. — Juan F. Andrés'},
   ]},
-  {id:'m2',nom:'Módulo 2',pct:100,ex:'9,25',col:'#4ade80',items:[
+  {id:'m2',nom:'Módulo 2',pct:100,ex:'9,25',col:'#639922',items:[
     {tp:'test',nom:'Test 2.1',nota:'8,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 2.2',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 2.3',nota:'10,00',st:'ok',fb:''},
@@ -506,7 +539,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 2.4 La Banda Sonora',nota:'80',st:'ok',fb:'La sustitución de Dirty Dancing no encaja en ritmo. En general buen trabajo. — Joaquín P.'},
     {tp:'tarea',nom:'Tarea 2.5',nota:'95',st:'ok',fb:'Muy bien. Faltó pista de audio en EDL. Vídeo a 18 Mbps en lugar de 20. — Jose Roa'},
   ]},
-  {id:'m3',nom:'Módulo 3',pct:100,ex:'9,75',col:'#4ade80',items:[
+  {id:'m3',nom:'Módulo 3',pct:100,ex:'9,75',col:'#639922',items:[
     {tp:'test',nom:'Test 3.1',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 3.2',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 3.3',nota:'8,00',st:'ok',fb:''},
@@ -523,7 +556,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 3.5.3',nota:'100',st:'ok',fb:'Muy bien, buen trabajo.'},
     {tp:'tarea',nom:'Tarea 3.5.4',nota:'100',st:'ok',fb:'Perfecto, adelante.'},
   ]},
-  {id:'m4',nom:'Módulo 4',pct:100,ex:'9,25',col:'#4ade80',items:[
+  {id:'m4',nom:'Módulo 4',pct:100,ex:'9,25',col:'#639922',items:[
     {tp:'test',nom:'Test 4.1',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 4.2',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 4.3',nota:'8,00',st:'ok',fb:''},
@@ -534,7 +567,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 4.3',nota:'100',st:'ok',fb:'Proyecto muy bueno. Faltó una logline/storyline inicial. — Juan'},
     {tp:'tarea',nom:'Tarea 4.4 Campaña Transmedia',nota:'90',st:'ok',fb:'Muy buen trabajo, coherencia en el universo. Mejorar: el peso narrativo recae más en el ARG que en el producto. — Juan'},
   ]},
-  {id:'m5',nom:'Módulo 5',pct:100,ex:'9,25',col:'#4ade80',items:[
+  {id:'m5',nom:'Módulo 5',pct:100,ex:'9,25',col:'#639922',items:[
     {tp:'test',nom:'Test 5.1',nota:'10,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 5.2',nota:'9,00',st:'ok',fb:''},
     {tp:'test',nom:'Test 5.3',nota:'10,00',st:'ok',fb:''},
@@ -542,7 +575,7 @@ const CURSO = [
     {tp:'tarea',nom:'Tarea 5.1',nota:'100',st:'ok',fb:'¡Enhorabuena por el trabajo realizado!'},
     {tp:'tarea',nom:'Tarea 5.2',nota:'100',st:'ok',fb:'Cada detalle cuidado a la perfección. ¡Muy buena tarea!'},
   ]},
-  {id:'fin',nom:'Proyecto Final + Prácticas',pct:50,ex:'80',col:'#fbbf24',items:[
+  {id:'fin',nom:'Proyecto Final + Prácticas',pct:50,ex:'80',col:'#BA7517',items:[
     {tp:'proyecto',nom:'Proyecto Final',nota:'80',st:'ok',fb:'Memoria excelente y dossier muy completo. Mejorar: capturas del proceso de etalonaje, planos más pausados en la intro, contraste de color algo alto. Enhorabuena. — Tutor'},
     {tp:'gestión',nom:'Solicitud de prácticas en empresa',nota:'—',st:'pendiente',fb:'Tramitar solicitud para la bolsa de prácticas.'},
   ]},
@@ -687,34 +720,30 @@ function renderChips() {
 function setFA(a) { fa=a; rv(); }
 
 function cardH(p) {
-  const ar = AREAS[p.a]||{label:p.a,col:'#888',cls:''};
-  const ec = EC[p.e]||EC.pendiente;
+  const pal = palOf(p.a);
   const d = dl(p.f);
   let dH = '';
   if (d!==null && p.e!=='hecho') {
-    const c = d<0?'#f87171':d<=3?'#f97316':d<=7?'#fbbf24':'var(--txt3)';
-    dH = `<span style="font-size:10px;color:${c};margin-left:auto">${d<0?Math.abs(d)+'d retraso':d===0?'hoy':d+'d'}</span>`;
+    const c = d<0?'#A32D2D':d<=3?'#993C1D':d<=7?'#854F0B':pal.tx;
+    dH = `<span style="font-size:10px;font-weight:600;color:${c}">${d<0?Math.abs(d)+'d retraso':d===0?'hoy':d+'d'}</span>`;
   }
+  // nota extraída de la descripción si aparece "100/100" o "90/100"
+  const nm = (p.d||'').match(/(\d{1,3})\s*\/\s*100/);
+  const notaH = nm ? `<span class="pnota" style="color:${pal.tx}">${nm[1]}</span>` : dH;
+  const prog = p.e==='hecho'?100:p.e==='progreso'?50:0;
   let rH = '';
   if (p.r?.trim()) {
-    const r=p.r.trim(), sh=r.length>44?r.slice(0,22)+'…'+r.slice(-20):r;
-    const ab = isUrl(r)?`<button class="ruta-btn" onclick="event.stopPropagation();window.open('${r}','_blank')">Abrir</button>`:'';
-    rH = `<div class="card-ruta">
-      <span class="ruta-txt" title="${r}">${sh}</span>
-      ${ab}
-      <button class="ruta-btn" id="cp${p.id}" onclick="event.stopPropagation();cpR('${r.replace(/'/g,"\\'")}','${p.id}')">Copiar</button>
-    </div>`;
+    const r=p.r.trim(), sh=r.length>40?r.slice(0,20)+'…'+r.slice(-16):r;
+    rH = `<div style="display:flex;gap:5px;margin-top:8px"><button class="ruta-btn" style="border-color:${pal.soft};color:${pal.tx}" onclick="event.stopPropagation();cpR('${r.replace(/'/g,"\\'")}','${p.id}')">Copiar ruta</button></div>`;
   }
-  return `<div class="card ${ar.cls}" onclick="om(${p.id})">
-    <div class="card-badges">
-      <span class="badge" style="color:${ec.t};border-color:${ec.t};background:${ec.b}">${p.e}</span>
-      <span class="badge" style="color:${PC[p.p]};border-color:${PC[p.p]};background:${PC[p.p]}22">${p.p}</span>
-      ${dH}
+  return `<div class="pcard" style="background:${pal.bg}" onclick="om(${p.id})">
+    <div class="pcard-top">
+      <span class="pbadge" style="background:${pal.soft};color:${pal.tx}">${p.p}</span>
+      ${notaH}
     </div>
-    <div class="card-title">${p.t}</div>
-    <div class="card-area-label" style="color:${ar.col}">${ar.label}</div>
-    ${p.d?`<div class="card-desc">${p.d.slice(0,120)}${p.d.length>120?'…':''}</div>`:''}
-    ${p.n?`<div class="card-notes">${p.n.slice(0,80)}${p.n.length>80?'…':''}</div>`:''}
+    <div class="card-title" style="color:${pal.tx}">${p.t}</div>
+    ${p.d?`<div class="card-desc" style="color:${pal.tx}">${p.d.slice(0,90)}${p.d.length>90?'…':''}</div>`:''}
+    ${prog>0?`<div class="pbar" style="background:${pal.soft}"><div class="pbar-fill" style="width:${prog}%;background:${pal.bar}"></div></div>`:''}
     ${rH}
   </div>`;
 }
@@ -723,13 +752,30 @@ function rv() {
   renderChips();
   const list = filt(), board = document.getElementById('board');
   let h = '';
+  const cols = [
+    {k:'pendiente', lbl:'Por hacer'},
+    {k:'progreso',  lbl:'En progreso'},
+    {k:'hecho',     lbl:'Hecho'},
+  ];
   if (vw==='area') {
     const byA={};
     list.forEach(p=>{(byA[p.a]=byA[p.a]||[]).push(p)});
-    Object.entries(byA).forEach(([a,ps])=>{
-      const ar=AREAS[a]||{label:a,col:'#888'};
-      h+=`<div class="slabel" style="color:${ar.col}">${ar.label}<span>${ps.length}</span></div>`;
-      h+=ps.map(cardH).join('');
+    const order=['f','t','c','fi','p','i'];
+    const keys=Object.keys(byA).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+    keys.forEach(a=>{
+      const ar=AREAS[a]||{label:a,col:'#888'}, pal=palOf(a), ps=byA[a];
+      h+=`<div class="area-head">
+        <span class="area-dot" style="background:${pal.dot}"></span>
+        <span class="area-name">${ar.label}</span>
+        <span class="area-tag" style="background:${pal.bg};color:${pal.tx}">${ps.length}</span>
+      </div><div class="kanban">`;
+      cols.forEach(col=>{
+        const items=ps.filter(p=>(p.e||'pendiente')===col.k);
+        h+=`<div class="kcol"><div class="kcol-head">${col.lbl}<span>${items.length}</span></div>`;
+        h+= items.length ? items.map(cardH).join('') : `<div class="kempty">—</div>`;
+        h+=`</div>`;
+      });
+      h+=`</div>`;
     });
   } else if (vw==='urg') {
     const s=[...list].sort((a,b)=>us(b)-us(a));
@@ -754,9 +800,9 @@ function rv() {
 function rcurso() {
   document.getElementById('mc').innerHTML=`
     <div class="metric"><div class="metric-val">7,63</div><div class="metric-lbl">Media global</div></div>
-    <div class="metric"><div class="metric-val" style="color:#4ade80">9,60</div><div class="metric-lbl">Nota final</div></div>
-    <div class="metric"><div class="metric-val" style="color:#fbbf24">1</div><div class="metric-lbl">Pendientes</div></div>
-    <div class="metric"><div class="metric-val" style="color:#4ade80">100%</div><div class="metric-lbl">Curso</div></div>`;
+    <div class="metric"><div class="metric-val" style="color:#3B6D11">9,60</div><div class="metric-lbl">Nota final</div></div>
+    <div class="metric"><div class="metric-val" style="color:#854F0B">1</div><div class="metric-lbl">Pendientes</div></div>
+    <div class="metric"><div class="metric-val" style="color:#3B6D11">100%</div><div class="metric-lbl">Curso</div></div>`;
 
   let h='<div style="margin-bottom:24px">';
   CURSO.forEach(m=>{
@@ -785,10 +831,10 @@ function rcurso() {
       <table class="ctable"><thead><tr><th>Actividad</th><th>Tipo</th><th>Nota</th><th>Estado</th></tr></thead><tbody>`;
     items.forEach(it=>{
       const nn=parseFloat(it.nota);
-      const nc=isNaN(nn)?'var(--txt3)':nn>=90?'#4ade80':nn>=70?'#fbbf24':'#f87171';
-      const ec=it.st==='ok'?{t:'#4ade80',b:'rgba(74,222,128,.15)',lbl:'entregado'}
-        :it.st==='progreso'?{t:'#60a5fa',b:'rgba(96,165,250,.15)',lbl:'en progreso'}
-        :{t:'#f87171',b:'rgba(248,113,113,.15)',lbl:'pendiente'};
+      const nc=isNaN(nn)?'var(--txt3)':nn>=90?'#3B6D11':nn>=70?'#854F0B':'#A32D2D';
+      const ec=it.st==='ok'?{t:'#3B6D11',b:'#EAF3DE',lbl:'entregado'}
+        :it.st==='progreso'?{t:'#185FA5',b:'#E6F1FB',lbl:'en progreso'}
+        :{t:'#A32D2D',b:'#FCEBEB',lbl:'pendiente'};
       const fid=`f${m.id}${it.nom.replace(/\W/g,'_')}`;
       h+=`<tr>
         <td>${it.nom}${it.fb?`<div class="fb" id="${fid}" onclick="this.classList.toggle('open')">${it.fb}</div>`:''}</td>
@@ -813,15 +859,15 @@ function rpend() {
     h+=pv.map(cardH).join('');
   }
   if (pc.length) {
-    h+=`<div class="slabel" style="color:#3b82f6;margin-top:20px">35mm · Pendientes del curso<span>${pc.length}</span></div>`;
+    const pal=palOf('f');
+    h+=`<div class="slabel" style="color:${pal.dot};margin-top:20px">35mm · Pendientes del curso<span>${pc.length}</span></div>`;
     pc.forEach(it=>{
-      const isP=it.st==='pendiente';
-      h+=`<div class="card" style="cursor:default">
-        <div class="card-badges">
-          <span class="badge" style="color:${isP?'#f87171':'#60a5fa'};border-color:${isP?'#f87171':'#60a5fa'};background:${isP?'rgba(248,113,113,.18)':'rgba(96,165,250,.18)'}">${it.st}</span>
-          <span class="badge" style="color:var(--txt3);border-color:var(--b2)">${it.tp}</span>
+      h+=`<div class="pcard" style="background:${pal.bg};cursor:default">
+        <div class="pcard-top">
+          <span class="pbadge" style="background:${pal.soft};color:${pal.tx}">${it.st}</span>
+          <span style="font-size:10px;color:${pal.tx};opacity:.7">${it.tp}</span>
         </div>
-        <div class="card-title">${it.nom}</div>
+        <div class="card-title" style="color:${pal.tx}">${it.nom}</div>
       </div>`;
     });
   }
