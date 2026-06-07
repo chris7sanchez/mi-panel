@@ -108,8 +108,9 @@ main{flex:1;overflow-y:auto;padding:24px 20px;padding-bottom:calc(24px + var(--s
 .page{display:none}.page.active{display:block}
 @media(min-width:680px){main{max-width:800px;margin:0 auto;padding:28px 24px}}
 /* la pizarra usa todo el ancho de la ventana */
-main:has(#page-vida.active){max-width:100%!important;padding:20px 24px}
+main:has(#page-vida.active){max-width:100%!important;width:100%!important;padding:20px 24px;align-self:stretch}
 #page-vida{width:100%}
+#page-vida .vida-layout{width:100%}
 
 /* PAGE HEADER */
 .ph{margin-bottom:24px}
