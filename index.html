@@ -342,7 +342,11 @@ main:has(#page-vida.active){max-width:100%!important;width:100%!important;paddin
   box-sizing:border-box;user-select:none;touch-action:none}
 .note.dragging{cursor:grabbing;z-index:99;opacity:.92}
 .note-shape{position:absolute;inset:0;z-index:0;pointer-events:none}
-.note-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;height:100%}
+.note-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;height:100%;box-sizing:border-box}
+.note-body.sh-rect{padding:4px 6px;justify-content:flex-start}
+.note-body.sh-circle{padding:0 16%;justify-content:center;text-align:center}
+.note-body.sh-tri{padding:0 14% 6px;justify-content:flex-end;text-align:center}
+.note-body.sh-tri .note-title,.note-body.sh-circle .note-sub{overflow:hidden}
 .note-title{font-size:13px;font-weight:600;line-height:1.2;outline:none}
 .note-sub{font-size:10px;line-height:1.3;opacity:.8;outline:none;flex:1}
 .note-tools{position:absolute;top:-13px;right:6px;display:none;gap:3px;z-index:3}
@@ -707,10 +711,13 @@ async function initSB() {
   }
 }
 
+let editando=false;
 async function pullCloud() {
   if (!sbOk) return;
+  if (editando) return;  // no redibujar mientras se edita/arrastra una nota
   const d = await sbReq('/projects?select=*&order=created_at.asc');
   if (!d) return;
+  if (editando) return;
   P = d.map(r => r.data);
   saveL(); ra();
   setSS('ok',`Sync ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`);
@@ -882,7 +889,7 @@ function renderCanvas(items){
     el.className='note'; el.dataset.id=p.id;
     el.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
     el.innerHTML=`${shapeSVG(shape,color)}
-      <div class="note-body" style="color:${txt}">
+      <div class="note-body sh-${shape}" style="color:${txt}">
         <div class="note-title" contenteditable spellcheck="false" data-f="t">${p.t||''}</div>
         <div class="note-sub" contenteditable spellcheck="false" data-f="d">${p.d||''}</div>
       </div>
@@ -899,12 +906,17 @@ function renderCanvas(items){
 function wireNote(el,p){
   // editar texto inline
   el.querySelectorAll('[contenteditable]').forEach(ed=>{
+    ed.addEventListener('focus',()=>{ editando=true; });
+    ed.addEventListener('input',()=>{ editando=true; });
     ed.addEventListener('blur',()=>{
       const f=ed.dataset.f, v=ed.textContent.trim();
-      const obj=P.find(x=>x.id===p.id); if(!obj)return;
+      const obj=P.find(x=>x.id===p.id);
+      editando=false;
+      if(!obj)return;
       if(obj[f]!==v){ obj[f]=v; saveL(); pushOne(obj); }
     });
     ed.addEventListener('mousedown',e=>e.stopPropagation());
+    ed.addEventListener('keydown',e=>e.stopPropagation());
   });
   // arrastrar
   let drag=null;
@@ -912,14 +924,14 @@ function wireNote(el,p){
     if(e.target.closest('.note-resize')||e.target.closest('[contenteditable]')||e.target.closest('.note-tool'))return;
     const r=el.getBoundingClientRect(), cv=document.getElementById('canvas').getBoundingClientRect();
     drag={dx:e.clientX-r.left, dy:e.clientY-r.top, cv};
-    el.classList.add('dragging');
+    el.classList.add('dragging'); editando=true;
     e.preventDefault();
   });
   // redimensionar
   const rz=el.querySelector('.note-resize'); let res=null;
   rz.addEventListener('mousedown',e=>{
     const r=el.getBoundingClientRect();
-    res={w0:r.width,h0:r.height,x0:e.clientX,y0:e.clientY};
+    res={w0:r.width,h0:r.height,x0:e.clientX,y0:e.clientY}; editando=true;
     e.preventDefault();e.stopPropagation();
   });
   window.addEventListener('mousemove',e=>{
@@ -934,8 +946,8 @@ function wireNote(el,p){
     }
   });
   window.addEventListener('mouseup',()=>{
-    if(drag){ el.classList.remove('dragging'); const obj=P.find(x=>x.id===p.id); if(obj){obj.x=parseInt(el.style.left);obj.y=parseInt(el.style.top);saveL();pushOne(obj);} drag=null; }
-    if(res){ const obj=P.find(x=>x.id===p.id); if(obj){obj.w=parseInt(el.style.width);obj.h=parseInt(el.style.height);saveL();pushOne(obj);} res=null; }
+    if(drag){ el.classList.remove('dragging'); const obj=P.find(x=>x.id===p.id); if(obj){obj.x=parseInt(el.style.left);obj.y=parseInt(el.style.top);saveL();pushOne(obj);} drag=null; setTimeout(()=>editando=false,200); }
+    if(res){ const obj=P.find(x=>x.id===p.id); if(obj){obj.w=parseInt(el.style.width);obj.h=parseInt(el.style.height);saveL();pushOne(obj);} res=null; setTimeout(()=>editando=false,200); }
   });
 }
 
